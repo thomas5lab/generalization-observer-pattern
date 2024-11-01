@@ -12,6 +12,7 @@ samples: x_event.cpp - Observed event definition.
          test.cpp - Few codes test subject update.
 
 compilation command line: g++ -g -O0 -std=c++14 test.cpp observer/subject_base.cpp observer/async_subject.cpp observer/async_executor.cpp -o test -I . -I observer/
+                          
                           g++ -g -O0 -std=c++11 test.cpp observer/subject_base.cpp observer/async_subject.cpp observer/async_executor.cpp -o test -I . -I observer/
 
 lackness: only test argument pass by value. all arguments are shallow copied, pointer type should be ok for synchronous dispatching.
