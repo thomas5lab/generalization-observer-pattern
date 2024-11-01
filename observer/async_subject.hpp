@@ -197,7 +197,7 @@ namespace DesignPattern
                 std::list<ObserverBase*> l = get_observer(typeid(E).hash_code());
                 for (ObserverBase* ob : l)
                 {
-                    ret = enqueue(new AsynchronousExecution<E, _9Arguments, T1, T2, T3, T4, T5, T6, T7, T8, T9>(ob, &Notification::on_notified, this, ev, arg, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)) && ret;   
+                    ret = enqueue(new AsynchronousExecution<E, _10Arguments, T1, T2, T3, T4, T5, T6, T7, T8, T9>(ob, &Notification::on_notified, this, ev, arg, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)) && ret;   
                 }
                 return ret;
             }
