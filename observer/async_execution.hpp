@@ -1,14 +1,18 @@
 #pragma once
 
-#if defined(__clang__) || defined(__GNUC__)
-	#define __cpp_version __cplusplus
-#elif defined(_MSC_VER)
-	#define __cpp_version _MSVC_LANG
-#endif
+#ifndef __cpp_version
+    #if defined(__clang__) || defined(__GNUC__)
+        #define __cpp_version __cplusplus
+    #elif defined(_MSC_VER)
+        #define __cpp_version _MSVC_LANG
+    #endif
+#endif // __cpp_version
 
 #if __cpp_version >= 201402L
     #include <tuple>
 #endif // >= c++14
+
+#include <list>
 
 #include "async_execution_base.hpp"
 
@@ -24,12 +28,12 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, Tn...>::*function)(const SubjectBase * const, const E* const, Tn...);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event, 
                                   Tn... args)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -47,36 +51,28 @@ namespace DesignPattern
             void unpack_execute(std::index_sequence<I...>)
             {
                 using Notification = ObserverNotification<E, Tn...>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, std::get<I>(_args)...);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, std::get<I>(_args)...);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;
             std::tuple<Tn...> _args;            
         };
-#else // c++11
-        struct _0Argument{};
-        struct _1Argument{};
-        struct _2Arguments{};
-        struct _3Arguments{};
-        struct _4Arguments{};
-        struct _5Arguments{};
-        struct _6Arguments{};
-        struct _7Arguments{};
-        struct _8Arguments{};
-        struct _9Arguments{};
-        struct _10Arguments{};
 
+#else // c++11
         template<typename E, typename ...Tn>
         class AsynchronousExecution;
 
@@ -85,11 +81,11 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E>::*function)(const SubjectBase * const, const E* const);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -99,19 +95,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
         };
@@ -121,12 +120,12 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T>::*function)(const SubjectBase * const, const E* const, T);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
                                   T arg)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -137,19 +136,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T _arg;
@@ -160,13 +162,13 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2>::*function)(const SubjectBase * const, const E* const, T1, T2);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
                                   T1 arg,
                                   T2 arg2)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -178,19 +180,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -202,14 +207,14 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3>::*function)(const SubjectBase * const, const E* const, T1, T2, T3);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
                                   T1 arg,
                                   T2 arg2,
                                   T3 arg3)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -222,19 +227,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -247,7 +255,7 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3, T4>::*function)(const SubjectBase * const, const E* const, T1, T2, T3, T4);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
@@ -255,7 +263,7 @@ namespace DesignPattern
                                   T2 arg2,
                                   T3 arg3,
                                   T4 arg4)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -269,19 +277,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3, T4>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -295,7 +306,7 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3, T4, T5>::*function)(const SubjectBase * const, const E* const, T1, T2, T3, T4, T5);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
@@ -304,7 +315,7 @@ namespace DesignPattern
                                   T3 arg3,
                                   T4 arg4,
                                   T5 arg5)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -319,19 +330,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3, T4, T5>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -346,7 +360,7 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3, T4, T5, T6>::*function)(const SubjectBase * const, const E* const, T1, T2, T3, T4, T5, T6);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
@@ -356,7 +370,7 @@ namespace DesignPattern
                                   T4 arg4,
                                   T5 arg5,
                                   T6 arg6)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -372,19 +386,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3, T4, T5, T6>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -400,7 +417,7 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7>::*function)(const SubjectBase * const, const E* const, T1, T2, T3, T4, T5, T6, T7);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
@@ -411,7 +428,7 @@ namespace DesignPattern
                                   T5 arg5,
                                   T6 arg6,
                                   T7 arg7)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -428,19 +445,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -457,7 +477,7 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7, T8>::*function)(const SubjectBase * const, const E* const, T1, T2, T3, T4, T5, T6, T7, T8);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
@@ -469,7 +489,7 @@ namespace DesignPattern
                                   T6 arg6,
                                   T7 arg7,
                                   T8 arg8)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -487,19 +507,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7, T8>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -517,7 +540,7 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7, T8, T9>::*function)(const SubjectBase * const, const E* const, T1, T2, T3, T4, T5, T6, T7, T8, T9);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
@@ -530,7 +553,7 @@ namespace DesignPattern
                                   T7 arg7,
                                   T8 arg8,
                                   T9 arg9)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -549,19 +572,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7, T8, T9>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8, _arg9);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8, _arg9);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
@@ -582,7 +608,7 @@ namespace DesignPattern
         {
         public:
             typedef bool (ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>::*function)(const SubjectBase * const, const E* const, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10);
-            AsynchronousExecution(ObserverBase* ob, 
+            AsynchronousExecution(const std::list<ObserverBase*>& lst, 
                                   function f, 
                                   SubjectBase* sub,
                                   const E* const event,
@@ -596,7 +622,7 @@ namespace DesignPattern
                                   T8 arg8,
                                   T9 arg9,
                                   T10 arg10)
-                                  : _ob(ob)
+                                  : _lst(lst)
                                   , _f(f)
                                   , _sub(sub)
                                   , _event(event)
@@ -616,19 +642,22 @@ namespace DesignPattern
             virtual void execute()
             {
                 using Notification = ObserverNotification<E, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>;
-                Notification* p = static_cast<Notification*>(_ob);
-                if (p != nullptr)
+                for (ObserverBase* ob : _lst)
                 {
-                    try {
-                        (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8, _arg9, _arg10);
-                    } catch(...) {                        
+                    Notification* p = static_cast<Notification*>(ob);
+                    if (p != nullptr)
+                    {
+                        try {
+                            (p->*_f)(_sub, _event, _arg, _arg2, _arg3, _arg4, _arg5, _arg6, _arg7, _arg8, _arg9, _arg10);
+                        } catch(...) {                        
+                        }
                     }
                 }
             }
 
         private:
+            std::list<ObserverBase*> _lst;
             function _f;
-            ObserverBase* _ob;
             SubjectBase* _sub;
             const E* _event;        
             T1 _arg;
