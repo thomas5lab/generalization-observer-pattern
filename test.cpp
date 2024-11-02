@@ -15,7 +15,7 @@ int main()
     a.on_state(2);
     a.on_error(-8);
 
-    ConcreteSubjectAsync a2(4U);
+    ConcreteSubjectAsync a2(3U);
     ConcreteObserver<ConcreteSubjectAsync> c("A", &a2), c2("B", &a2), c3("C", &a2), c4("D", &a2);
 
     a2.on_none();

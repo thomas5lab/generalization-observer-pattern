@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <chrono>
 
 #include "observer.hpp"
 #include "event_definition.hpp"
@@ -41,6 +42,7 @@ protected:
                      const ComopmentEvent::Event_void* const)
     {
         std::cout << _name << ": void" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
         return true;
     }
 
