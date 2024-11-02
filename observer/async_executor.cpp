@@ -73,9 +73,11 @@ namespace DesignPattern
             AsynchronousExecutionBase* p(nullptr);
             while (_running)
             {   
-                std::unique_lock<std::mutex> lk(_mu_cv);
-                _cv.wait(lk);                        
-                if (!_running) break;                
+                {
+                    std::unique_lock<std::mutex> lk(_mu_cv);
+                    _cv.wait(lk);
+                }                                                                  
+                if (!_running) break;   
                 do
                 {
                     if ((p = get()) != nullptr)
@@ -84,7 +86,6 @@ namespace DesignPattern
                         delete p;
                     }
                 } while(p != nullptr);
-                lk.unlock();
             }
         }
     }
