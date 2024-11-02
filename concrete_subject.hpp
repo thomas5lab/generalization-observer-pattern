@@ -57,12 +57,12 @@ public:
     virtual bool on_error(const int err)
     {
         ComopmentEvent::Event_error* ev;
-        return notify(ev, err);
+        return notify_concurrency(ev, err);
     }
 
     virtual bool on_coordinate_changed(const float x, const float y, const float z)
     {
         ComopmentEvent::Event_coordinate* ev;
-        return notify(ev, x, y, z);
+        return notify_concurrency(ev, x, y, z);
     }
 };
